@@ -2,6 +2,7 @@
 const mongoose = require("mongoose");
 const Employee = require("../models/Employee");
 
+// 직원 목록 조회
 exports.listEmployees = async (req, res) => {
   try {
     const emps = await Employee.find({});
@@ -14,7 +15,6 @@ exports.listEmployees = async (req, res) => {
       salary: e.salary,
       date_of_joining: e.date_of_joining,
       department: e.department,
-      profile_image: e.profile_image,
     }));
     return res.status(200).json(out);
   } catch (err) {
@@ -23,34 +23,23 @@ exports.listEmployees = async (req, res) => {
   }
 };
 
+// 직원 생성
 exports.createEmployee = async (req, res) => {
   try {
-    const payload = { ...req.body };
-
-    // 문자열로 온 salary -> 숫자로
-    if (payload.salary) {
-      payload.salary = Number(payload.salary);
-    }
-
-    // 날짜 문자열(YYYY-MM-DD)은 mongoose가 자동으로 Date로 변환해줌
-    // 파일 업로드된 경우 profile_image 경로 세팅
-    if (req.file) {
-      payload.profile_image = `/uploads/${req.file.filename}`;
-    }
-
+    const payload = req.body;
     const emp = new Employee(payload);
     await emp.save();
-
     return res.status(201).json({
       message: "Employee created successfully.",
       employee_id: emp._id,
     });
   } catch (err) {
-    console.error("createEmployee error:", err);
+    console.error(err);
     return res.status(500).json({ status: false, message: "Server error" });
   }
 };
 
+// 단일 직원 조회
 exports.getEmployee = async (req, res) => {
   try {
     const { eid } = req.params;
@@ -76,7 +65,6 @@ exports.getEmployee = async (req, res) => {
       salary: emp.salary,
       date_of_joining: emp.date_of_joining,
       department: emp.department,
-      profile_image: emp.profile_image,
     });
   } catch (err) {
     console.error(err);
@@ -84,6 +72,7 @@ exports.getEmployee = async (req, res) => {
   }
 };
 
+// 직원 수정
 exports.updateEmployee = async (req, res) => {
   try {
     const { eid } = req.params;
@@ -93,16 +82,7 @@ exports.updateEmployee = async (req, res) => {
         .json({ status: false, message: "Invalid employee id" });
     }
 
-    const updates = { ...req.body };
-
-    if (updates.salary) {
-      updates.salary = Number(updates.salary);
-    }
-
-    if (req.file) {
-      updates.profile_image = `/uploads/${req.file.filename}`;
-    }
-
+    const updates = req.body;
     updates.updated_at = new Date();
 
     const updated = await Employee.findByIdAndUpdate(eid, updates, {
@@ -124,6 +104,7 @@ exports.updateEmployee = async (req, res) => {
   }
 };
 
+// 직원 삭제
 exports.deleteEmployee = async (req, res) => {
   try {
     const { eid } = req.query;
@@ -132,6 +113,7 @@ exports.deleteEmployee = async (req, res) => {
         .status(400)
         .json({ status: false, message: "Missing eid query param" });
     }
+
     if (!mongoose.Types.ObjectId.isValid(eid)) {
       return res
         .status(400)
@@ -146,6 +128,48 @@ exports.deleteEmployee = async (req, res) => {
     }
 
     return res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ status: false, message: "Server error" });
+  }
+};
+
+exports.searchEmployees = async (req, res) => {
+  try {
+    const { department, position } = req.query;
+
+    // 둘 다 없으면 에러
+    if (!department && !position) {
+      return res.status(400).json({
+        status: false,
+        message: "department 또는 position 중 하나는 있어야 합니다.",
+      });
+    }
+
+    const filter = {};
+
+    if (department) {
+      filter.department = { $regex: new RegExp(department, "i") };
+    }
+
+    if (position) {
+      filter.position = { $regex: new RegExp(position, "i") };
+    }
+
+    const emps = await Employee.find(filter);
+
+    const out = emps.map((e) => ({
+      employee_id: e._id,
+      first_name: e.first_name,
+      last_name: e.last_name,
+      email: e.email,
+      position: e.position,
+      salary: e.salary,
+      date_of_joining: e.date_of_joining,
+      department: e.department,
+    }));
+
+    return res.status(200).json(out);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ status: false, message: "Server error" });

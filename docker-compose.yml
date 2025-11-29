@@ -13,7 +13,7 @@ services:
       - ./backend/data:/data/db
 
   backend:
-    build: ./backend # ⭐ 반드시 이렇게!
+    build: ./backend
     container_name: comp3123_backend
     ports:
       - "5000:5000"
