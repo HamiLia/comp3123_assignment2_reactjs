@@ -1,0 +1,11 @@
+db.employees.find().pretty()
+use comp3123_assignment1
+db.users.find().pretty()
+show collections
+use comp3123_assigment1
+show collections
+use comp3123_assignment1
+show dbs
+show collections
+use comp3123_assignment1
+show dbs
