@@ -20,9 +20,6 @@ app.use("/api/v1/emp", employeeRoutes);
 
 app.get("/", (req, res) => res.json({ message: "API running" }));
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);
   const status = err.status || 500;
@@ -30,6 +27,7 @@ app.use((err, req, res, next) => {
   res.status(status).json({ message });
 });
 
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server started on port ${PORT}`);
 });
