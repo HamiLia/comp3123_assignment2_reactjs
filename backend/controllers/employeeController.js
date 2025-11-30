@@ -1,8 +1,6 @@
-// backend/controllers/employeeController.js
 const mongoose = require("mongoose");
 const Employee = require("../models/Employee");
 
-// 직원 목록 조회
 exports.listEmployees = async (req, res) => {
   try {
     const emps = await Employee.find({});
@@ -23,7 +21,6 @@ exports.listEmployees = async (req, res) => {
   }
 };
 
-// 직원 생성
 exports.createEmployee = async (req, res) => {
   try {
     const payload = req.body;
@@ -39,7 +36,6 @@ exports.createEmployee = async (req, res) => {
   }
 };
 
-// 단일 직원 조회
 exports.getEmployee = async (req, res) => {
   try {
     const { eid } = req.params;
@@ -72,7 +68,6 @@ exports.getEmployee = async (req, res) => {
   }
 };
 
-// 직원 수정
 exports.updateEmployee = async (req, res) => {
   try {
     const { eid } = req.params;
@@ -104,7 +99,6 @@ exports.updateEmployee = async (req, res) => {
   }
 };
 
-// 직원 삭제
 exports.deleteEmployee = async (req, res) => {
   try {
     const { eid } = req.query;
@@ -137,8 +131,6 @@ exports.deleteEmployee = async (req, res) => {
 exports.searchEmployees = async (req, res) => {
   try {
     const { department, position } = req.query;
-
-    // 둘 다 없으면 에러
     if (!department && !position) {
       return res.status(400).json({
         status: false,

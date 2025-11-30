@@ -1,4 +1,3 @@
-// frontend/src/pages/EmployeeAdd.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axiosInstance";
